@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTH-Boostgang</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .card-thumbnail {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+        }
+
+        .card-content {
+            padding: 25px;
+        }
+
+        .card-website {
+            font-size: 0.9rem;
+            color: #667eea;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .card-person {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .card-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .card-url {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .card-url:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.1rem;
+            padding: 50px;
+        }
+
+        .error {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            color: #d63384;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .card-content {
+                padding: 20px;
+            }
+        }
+
+        /* Smooth loading animation */
+        .card {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.8) translateY(50px);
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-title {
+            color: #dc3545;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .modal-text {
+            color: #333;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-btn-back {
+            background: #6c757d;
+            color: white;
+        }
+
+        .modal-btn-back:hover {
+            background: #5a6268;
+        }
+
+        .modal-btn-continue {
+            background: #28a745;
+            color: white;
+        }
+
+        .modal-btn-continue:hover {
+            background: #218838;
+        }
+
+        @media (max-width: 768px) {
+            .modal-buttons {
+                flex-direction: column;
+            }
+            
+            .modal {
+                padding: 25px;
+                margin: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>TTH-Boostgang</h1>
+            <p>Entdecke unsere Community und ihre Projekte</p>
+        </div>
+
+        <div id="content">
+            <div class="loading">Lade Website-Karten...</div>
+        </div>
+        
+        <!-- Disclaimer Modal -->
+        <div id="disclaimerModal" class="modal-overlay">
+            <div class="modal">
+                <div class="modal-title">Disclaimer</div>
+                <div class="modal-text">Wir von TTH-Projects sind nicht verantwortlich für das, was Sie hier sehen werden!</div>
+                <div class="modal-buttons">
+                    <button class="modal-btn modal-btn-back" onclick="closeModal()">Zurück</button>
+                    <button id="continueBtn" class="modal-btn modal-btn-continue" onclick="continueToWebsite()">Weiter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JSON-Daten für die Website-Karten
+        // Hier kannst du einfach neue Einträge hinzufügen
+        const websiteData = [
+            {
+                website: "Tech Blog",
+                person: "Max Mustermann",
+                url: "https://example.com/max-blog",
+                description: "Ein faszinierender Blog über die neuesten Technologien, Programmierung und digitale Innovationen. Hier findest du Tutorials, Reviews und Insights.",
+                thumbnail: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=200&fit=crop"
+            },
+            {
+                website: "Design Portfolio",
+                person: "Anna Schmidt",
+                url: "https://example.com/anna-design",
+                description: "Kreative Designlösungen und beeindruckende Portfolios. Von Webdesign bis hin zu Branding - hier wird Kreativität großgeschrieben.",
+                thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=200&fit=crop"
+            },
+            {
+                website: "Gaming Hub",
+                person: "Tom Weber",
+                url: "https://example.com/gaming-hub",
+                description: "Die ultimative Anlaufstelle für Gaming-Enthusiasten. Reviews, News und Community-Features für alle Gaming-Plattformen.",
+                thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=200&fit=crop"
+            },
+            {
+                website: "Foto Studio",
+                person: "Lisa Müller",
+                url: "https://example.com/foto-studio",
+                description: "Professionelle Fotografie und visuelle Geschichten. Von Portraits bis zu Event-Fotografie - jeder Moment wird perfekt festgehalten.",
+                thumbnail: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=200&fit=crop"
+            },
+            {
+                website: "Music Producer",
+                person: "David Klein",
+                url: "https://example.com/music-production",
+                description: "Musikproduktion und Sound Design auf höchstem Niveau. Von elektronischen Beats bis hin zu orchestralen Arrangements.",
+                thumbnail: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=200&fit=crop"
+            },
+            {
+                website: "Startup Blog",
+                person: "Sarah Johnson",
+                url: "https://example.com/startup-blog",
+                description: "Insights aus der Startup-Welt und Entrepreneurship. Tipps, Tricks und Erfahrungen für angehende Gründer und Unternehmer.",
+                thumbnail: "https://images.unsplash.com/photo-1553028826-f4804a6dba3b?w=400&h=200&fit=crop"
+            }
+        ];
+
+        function createCard(data, index) {
+            return `
+                <div class="card" style="animation-delay: ${index * 0.1}s">
+                    <img src="${data.thumbnail}" alt="${data.website}" class="card-thumbnail" 
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDQwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjBmMGYwIi8+CjxwYXRoIGQ9Ik0xNzUgNzVIMjI1VjEyNUgxNzVWNzVaIiBmaWxsPSIjY2NjIi8+CjxwYXRoIGQ9Ik0xNTAgMTQwSDE1MFYxNDBIMjUwVjE0MEgyNTBWMTQwSDE1MFoiIGZpbGw9IiNjY2MiLz4KPHN0eWxlPgoudGV4dCB7IGZvbnQ6IDEycHggc2Fucy1zZXJpZjsgZmlsbDogIzk5OTsgdGV4dC1hbmNob3I6IG1pZGRsZTsgfQo8L3N0eWxlPgo8dGV4dCB4PSIyMDAiIHk9IjE2MCIgY2xhc3M9InRleHQiPktlaW4gQmlsZCB2ZXJmw7xnYmFyPC90ZXh0Pgo8L3N2Zz4K';">
+                    <div class="card-content">
+                        <div class="card-website">${data.website}</div>
+                        <div class="card-person">${data.person}</div>
+                        <div class="card-description">${data.description}</div>
+                        <a href="#" onclick="showDisclaimer('${data.url}'); return false;" class="card-url">Website besuchen</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCards() {
+            const contentDiv = document.getElementById('content');
+            
+            try {
+                if (websiteData.length === 0) {
+                    contentDiv.innerHTML = '<div class="error">Keine Website-Karten gefunden.</div>';
+                    return;
+                }
+
+                const cardsHTML = websiteData.map((data, index) => createCard(data, index)).join('');
+                contentDiv.innerHTML = `<div class="cards-grid">${cardsHTML}</div>`;
+            } catch (error) {
+                console.error('Fehler beim Rendern der Karten:', error);
+                contentDiv.innerHTML = '<div class="error">Fehler beim Laden der Website-Karten.</div>';
+            }
+        }
+
+        // Simuliere eine kurze Ladezeit für bessere UX
+        setTimeout(() => {
+            renderCards();
+        }, 500);
+
+        // Modal-Funktionen
+        let currentUrl = '';
+
+        function showDisclaimer(url) {
+            currentUrl = url;
+            const modal = document.getElementById('disclaimerModal');
+            modal.classList.add('active');
+            
+            // Verhindere Scrollen im Hintergrund
+            document.body.style.overflow = 'hidden';
+        }
+
+        function continueToWebsite() {
+            // Website in neuem Tab öffnen
+            window.open(currentUrl, '_blank');
+            // Modal schließen
+            closeModal();
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('disclaimerModal');
+            modal.classList.remove('active');
+            
+            // Erlaube wieder Scrollen
+            document.body.style.overflow = 'auto';
+        }
+
+        // Modal schließen beim Klick auf Overlay
+        document.getElementById('disclaimerModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Modal schließen mit Escape-Taste
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
