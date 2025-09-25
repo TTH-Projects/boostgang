@@ -288,23 +288,22 @@
         <div id="content">
             <div class="loading">Lade Website-Karten...</div>
         </div>
-        
-        <!-- Disclaimer Modal -->
-        <div id="disclaimerModal" class="modal-overlay">
-            <div class="modal">
-                <div class="modal-title">Disclaimer</div>
-                <div class="modal-text">Wir von TTH-Projects sind nicht verantwortlich für das, was Sie hier sehen werden!</div>
-                <div class="modal-buttons">
-                    <button class="modal-btn modal-btn-back" onclick="closeModal()">Zurück</button>
-                    <button id="continueBtn" class="modal-btn modal-btn-continue" onclick="continueToWebsite()">Weiter</button>
-                </div>
+    </div>
+
+    <!-- Disclaimer Modal -->
+    <div id="disclaimerModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-title">Disclaimer</div>
+            <div class="modal-text">Wir von TTH-Projects sind nicht verantwortlich für das, was Sie hier sehen werden!</div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-back" onclick="goBack()">Zurück</button>
+                <button id="continueBtn" class="modal-btn modal-btn-continue" onclick="closeModal()">Weiter</button>
             </div>
         </div>
     </div>
 
     <script>
-        // JSON-Daten für die Website-Karten
-        // Hier kannst du einfach neue Einträge hinzufügen
+        // Website-Daten
         const websiteData = [
             {
                 website: "Website",
@@ -319,12 +318,12 @@
             return `
                 <div class="card" style="animation-delay: ${index * 0.1}s">
                     <img src="${data.thumbnail}" alt="${data.website}" class="card-thumbnail" 
-                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDQwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjBmMGYwIi8+CjxwYXRoIGQ9Ik0xNzUgNzVIMjI1VjEyNUgxNzVWNzVaIiBmaWxsPSIjY2NjIi8+CjxwYXRoIGQ9Ik0xNTAgMTQwSDE1MFYxNDBIMjUwVjE0MEgyNTBWMTQwSDE1MFoiIGZpbGw9IiNjY2MiLz4KPHN0eWxlPgoudGV4dCB7IGZvbnQ6IDEycHggc2Fucy1zZXJpZjsgZmlsbDogIzk5OTsgdGV4dC1hbmNob3I6IG1pZGRsZTsgfQo8L3N0eWxlPgo8dGV4dCB4PSIyMDAiIHk9IjE2MCIgY2xhc3M9InRleHQiPktlaW4gQmlsZCB2ZXJmw7xnYmFyPC90ZXh0Pgo8L3N2Zz4K';">
+                         onerror="this.src='data:image/svg+xml;base64,...';">
                     <div class="card-content">
                         <div class="card-website">${data.website}</div>
                         <div class="card-person">${data.person}</div>
                         <div class="card-description">${data.description}</div>
-                        <a href="#" onclick="showDisclaimer('${data.url}'); return false;" class="card-url">Website besuchen</a>
+                        <a href="${data.url}" target="_blank" class="card-url">Website besuchen</a>
                     </div>
                 </div>
             `;
@@ -332,13 +331,11 @@
 
         function renderCards() {
             const contentDiv = document.getElementById('content');
-            
             try {
                 if (websiteData.length === 0) {
                     contentDiv.innerHTML = '<div class="error">Keine Website-Karten gefunden.</div>';
                     return;
                 }
-
                 const cardsHTML = websiteData.map((data, index) => createCard(data, index)).join('');
                 contentDiv.innerHTML = `<div class="cards-grid">${cardsHTML}</div>`;
             } catch (error) {
@@ -347,51 +344,25 @@
             }
         }
 
-        // Simuliere eine kurze Ladezeit für bessere UX
         setTimeout(() => {
             renderCards();
         }, 500);
 
-        // Modal-Funktionen
-        let currentUrl = '';
-
-        function showDisclaimer(url) {
-            currentUrl = url;
-            const modal = document.getElementById('disclaimerModal');
-            modal.classList.add('active');
-            
-            // Verhindere Scrollen im Hintergrund
+        // Modal beim Laden sofort öffnen
+        window.onload = function() {
+            document.getElementById('disclaimerModal').classList.add('active');
             document.body.style.overflow = 'hidden';
-        }
-
-        function continueToWebsite() {
-            // Website in neuem Tab öffnen
-            window.open(currentUrl, '_blank');
-            // Modal schließen
-            closeModal();
-        }
+        };
 
         function closeModal() {
             const modal = document.getElementById('disclaimerModal');
             modal.classList.remove('active');
-            
-            // Erlaube wieder Scrollen
             document.body.style.overflow = 'auto';
         }
 
-        // Modal schließen beim Klick auf Overlay
-        document.getElementById('disclaimerModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
-
-        // Modal schließen mit Escape-Taste
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        });
+        function goBack() {
+            window.history.back();
+        }
     </script>
 </body>
 </html>
